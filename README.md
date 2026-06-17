@@ -17,13 +17,15 @@ A repository implementáció nem része a feladatnak, ezért a `src` mappa csak 
 
 - PHP 8.2+
 - Composer
-- PHPUnit 11.5, composer dev dependency-ként
+- PHPUnit 11.5, Composer dev dependencyként
 
 ## Telepítés
 
 ```bash
 composer install
 ```
+
+A `composer.lock` a repó része, hogy a tesztkörnyezet reprodukálható legyen.
 
 ## Tesztek futtatása
 

@@ -17,4 +17,4 @@ Ez tartalmazza:
 
 **Becsült nettó díj összesen:** 96 000 Ft
 
-Az ajánlat a megadott specifikáció szerinti, önállóan tesztelhető PHP szolgáltatás elkészítésére vonatkozik. Éles rendszerbe történő integráció, adatbázis-séma tervezés, migrációk, admin felület, e-mail értesítések vagy további üzleti validációk külön egyeztetés alapján kerülhetnek be a scope-ba.
+Az ajánlat a megadott specifikáció szerinti, önállóan tesztelhető PHP űrlapfeldolgozó szolgáltatás elkészítésére vonatkozik. Éles rendszerbe történő integráció, adatbázis-séma tervezés, migrációk, admin felület, e-mail értesítések vagy további üzleti validációk külön egyeztetés alapján kerülhetnek be a scope-ba.
