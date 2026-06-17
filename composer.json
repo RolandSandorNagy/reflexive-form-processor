@@ -2,6 +2,7 @@
   "name": "rolandnagy/reflexive-form-processor",
   "description": "Reflexive Communications PHP form processor test task solution.",
   "type": "project",
+  "license": "proprietary",
   "require": {
     "php": "^8.2"
   },
@@ -19,6 +20,6 @@
     }
   },
   "scripts": {
-    "test": "phpunit"
+    "test": "@php vendor/bin/phpunit"
   }
 }

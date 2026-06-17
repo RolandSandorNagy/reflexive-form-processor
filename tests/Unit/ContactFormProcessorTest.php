@@ -127,6 +127,93 @@ final class ContactFormProcessorTest extends TestCase
 
     public function testItThrowsValidationExceptionForInvalidInput(): void
     {
+        $this->assertValidationErrors(
+            [
+                'first_name' => '',
+                'last_name' => 'Nagy',
+                'email' => 'not-an-email',
+                'field' => 'Webfejlesztés',
+                'service' => 'Kapcsolatfelvétel',
+                'message' => 'Teszt üzenet',
+            ],
+            ['first_name', 'email'],
+        );
+    }
+
+    public function testItCollectsValidationErrorsForMissingEmptyAndNonStringFields(): void
+    {
+        $this->assertValidationErrors(
+            [
+                'first_name' => ['Roland'],
+                'email' => 123,
+                'field' => ' ',
+                'service' => 'SEO',
+                'message' => '',
+            ],
+            ['first_name', 'last_name', 'email', 'field', 'message'],
+        );
+    }
+
+    public function testItRejectsInvalidTimestampWithoutPersistingAnything(): void
+    {
+        $this->assertValidationErrors(
+            [
+                'first_name' => 'Roland',
+                'last_name' => 'Nagy',
+                'email' => 'roland@example.com',
+                'field' => 'Webfejlesztés',
+                'service' => 'Kapcsolatfelvétel',
+                'message' => 'Teszt üzenet',
+                'timestamp' => 'not-a-date',
+            ],
+            ['timestamp'],
+        );
+    }
+
+    public function testItUsesClockWhenTimestampIsEmpty(): void
+    {
+        $contactRepository = $this->createMock(ContactRepositoryInterface::class);
+        $submissionRepository = $this->createMock(ContactFormSubmissionRepositoryInterface::class);
+        $clock = new FixedClock(new DateTimeImmutable('2026-06-16T10:00:00+00:00'));
+
+        $contactRepository
+            ->expects(self::once())
+            ->method('getContactByEmail')
+            ->with('roland@example.com')
+            ->willReturn(null);
+
+        $contactRepository
+            ->expects(self::once())
+            ->method('create')
+            ->willReturn(12);
+
+        $submissionRepository
+            ->expects(self::once())
+            ->method('create')
+            ->with(self::callback(
+                static fn (array $submission): bool => $submission['timestamp'] === '2026-06-16T10:00:00+00:00',
+            ))
+            ->willReturn(100);
+
+        $processor = new ContactFormProcessor($contactRepository, $submissionRepository, $clock);
+
+        $processor->process([
+            'first_name' => 'Roland',
+            'last_name' => 'Nagy',
+            'email' => 'roland@example.com',
+            'field' => 'Webfejlesztés',
+            'service' => 'Kapcsolatfelvétel',
+            'message' => 'Teszt üzenet',
+            'timestamp' => ' ',
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param list<string> $expectedErrorKeys
+     */
+    private function assertValidationErrors(array $data, array $expectedErrorKeys): void
+    {
         $contactRepository = $this->createMock(ContactRepositoryInterface::class);
         $submissionRepository = $this->createMock(ContactFormSubmissionRepositoryInterface::class);
 
@@ -138,19 +225,16 @@ final class ContactFormProcessorTest extends TestCase
         $processor = new ContactFormProcessor($contactRepository, $submissionRepository);
 
         try {
-            $processor->process([
-                'first_name' => '',
-                'last_name' => 'Nagy',
-                'email' => 'not-an-email',
-                'field' => 'Webfejlesztés',
-                'service' => 'Kapcsolatfelvétel',
-                'message' => 'Teszt üzenet',
-            ]);
+            $processor->process($data);
 
             self::fail('Expected ValidationException was not thrown.');
         } catch (ValidationException $exception) {
-            self::assertArrayHasKey('first_name', $exception->errors());
-            self::assertArrayHasKey('email', $exception->errors());
+            $actualErrorKeys = array_keys($exception->errors());
+
+            sort($actualErrorKeys);
+            sort($expectedErrorKeys);
+
+            self::assertSame($expectedErrorKeys, $actualErrorKeys);
         }
     }
 }
