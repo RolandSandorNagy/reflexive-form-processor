@@ -1,0 +1,24 @@
+{
+  "name": "rolandnagy/reflexive-form-processor",
+  "description": "Reflexive Communications PHP form processor test task solution.",
+  "type": "project",
+  "require": {
+    "php": "^8.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Reflexive\\FormProcessor\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Reflexive\\FormProcessor\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}
